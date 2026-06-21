@@ -1,0 +1,62 @@
+workflows:
+  ios-build:
+    name: meow iOS Build
+    environment:
+      xcode: latest
+    scripts:
+      - name: Build archive
+        script: |
+          xcodebuild archive \
+            -scheme "meow" \
+            -archivePath "$CM_BUILD_DIR/meow.xcarchive" \
+            -destination "generic/platform=iOS" \
+            COREML_CODEGEN_LANGUAGE=Swift
+
+      - name: Construct Manual .ipa
+        script: |
+          IPA_DIR="$CM_BUILD_DIR/build/ios/ipa"
+          PAYLOAD_DIR="$IPA_DIR/Payload"
+          APP_BUNDLE="$PAYLOAD_DIR/meow.app"
+
+          echo "Creating App Bundle..."
+          mkdir -p "$APP_BUNDLE"
+
+          # 1. Find and copy the compiled binary
+          BINARY_SOURCE=$(find "$CM_BUILD_DIR/meow.xcarchive" -name "meow" -type f | head -n 1)
+          if [ -z "$BINARY_SOURCE" ]; then
+            echo "Error: Could not find compiled binary!"
+            exit 1
+          fi
+          echo "Found binary: $BINARY_SOURCE"
+          cp "$BINARY_SOURCE" "$APP_BUNDLE/meow"
+
+          # 2. Find and copy the compiled CoreML models
+          find "$CM_BUILD_DIR/meow.xcarchive" -name "*.mlmodelc" -type d -exec cp -r {} "$APP_BUNDLE/" \;
+          MODEL_COUNT=$(find "$APP_BUNDLE" -maxdepth 1 -name "*.mlmodelc" -type d | wc -l)
+          echo "Copied $MODEL_COUNT compiled model(s) into the app bundle."
+          if [ "$MODEL_COUNT" -lt 2 ]; then
+            echo "Error: expected 2 models (yolov8n + DepthAnythingV2SmallF16), found $MODEL_COUNT!"
+            exit 1
+          fi
+
+          # 3. Copy Info.plist
+          cp "$CM_BUILD_DIR/Info.plist" "$APP_BUNDLE/Info.plist"
+
+          # 4. Copy origin_marker.png directly from source code
+          echo "Copying origin_marker.png..."
+          MARKER_FILE="$CM_BUILD_DIR/Sources/AppModule/origin_marker.png"
+          
+          if [ -f "$MARKER_FILE" ]; then
+              echo "✅ FOUND IT! Copying origin_marker.png to App Bundle..."
+              cp "$MARKER_FILE" "$APP_BUNDLE/origin_marker.png"
+          else
+              echo "❌ ERROR: Still not found at $MARKER_FILE"
+              ls -la "$CM_BUILD_DIR/Sources/AppModule/"
+          fi
+          
+          # 5. Zip into .ipa
+          cd "$IPA_DIR"
+          zip -r "meow.ipa" "Payload"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
