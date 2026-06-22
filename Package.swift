@@ -2,11 +2,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "meow",
+    name: "Surv",
     platforms: [.iOS("16.0")],
     products: [
         .executable(
-            name: "meow",
+            name: "Surv",
             targets: ["AppModule"]
         )
     ],

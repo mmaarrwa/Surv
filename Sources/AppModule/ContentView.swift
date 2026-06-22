@@ -94,7 +94,7 @@ struct ContentView: View {
                             .fill(arManager.isStreaming ? Color.green : Color.orange)
                             .frame(width: 8, height: 8)
                         Text(arManager.isStreaming ? "Streaming @ 10Hz" : "Waiting for START...")
-                            .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
                             .foregroundColor(.white)
                         
                         Spacer()
@@ -118,8 +118,8 @@ struct ContentView: View {
                         }) {
                             Text(arManager.isStreaming ? "STOP" : "START")
                                 .font(.system(size: 12, weight: .bold, design: .monospaced))
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 6)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
                                 .background(arManager.isStreaming ? Color.red : Color.green)
                                 .foregroundColor(.white)
                                 .cornerRadius(6)
@@ -129,9 +129,9 @@ struct ContentView: View {
                         Image(systemName: "wifi").foregroundColor(.gray).frame(width: 18)
                         TextField("Laptop IP", text: $settings.serverIP)
                             .textFieldStyle(.plain)
-                            .font(.system(size: 14, design: .monospaced))
+                            .font(.system(size: 13, design: .monospaced))
                             .keyboardType(.decimalPad)
-                            .padding(7)
+                            .padding(5)
                             .background(Color.white.opacity(0.15))
                             .cornerRadius(6)
                             .foregroundColor(.white)
@@ -145,8 +145,8 @@ struct ContentView: View {
                         }) {
                             Text(arManager.isConnected ? "Disconnect" : "Connect")
                                 .font(.caption.bold())
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 8)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
                                 .background(arManager.isConnected ? Color.red : Color.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(6)
@@ -158,11 +158,11 @@ struct ContentView: View {
                             .foregroundColor(.white)
                     }
                 }
-                .padding(14)
+                .padding(10)
                 .background(Color.black.opacity(0.80))
                 .cornerRadius(16)
                 .padding(.horizontal, 20)
-                .padding(.bottom, 28)
+                .padding(.bottom, 16)
                 .shadow(radius: 8)
             }
 

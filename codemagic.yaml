@@ -1,14 +1,14 @@
 workflows:
   ios-build:
-    name: meow iOS Build
+    name: Surv iOS Build
     environment:
       xcode: latest
     scripts:
       - name: Build archive
         script: |
           xcodebuild archive \
-            -scheme "meow" \
-            -archivePath "$CM_BUILD_DIR/meow.xcarchive" \
+            -scheme "Surv" \
+            -archivePath "$CM_BUILD_DIR/Surv.xcarchive" \
             -destination "generic/platform=iOS" \
             COREML_CODEGEN_LANGUAGE=Swift
 
@@ -16,22 +16,22 @@ workflows:
         script: |
           IPA_DIR="$CM_BUILD_DIR/build/ios/ipa"
           PAYLOAD_DIR="$IPA_DIR/Payload"
-          APP_BUNDLE="$PAYLOAD_DIR/meow.app"
+          APP_BUNDLE="$PAYLOAD_DIR/Surv.app"
 
           echo "Creating App Bundle..."
           mkdir -p "$APP_BUNDLE"
 
           # 1. Find and copy the compiled binary
-          BINARY_SOURCE=$(find "$CM_BUILD_DIR/meow.xcarchive" -name "meow" -type f | head -n 1)
+          BINARY_SOURCE=$(find "$CM_BUILD_DIR/Surv.xcarchive" -name "Surv" -type f | head -n 1)
           if [ -z "$BINARY_SOURCE" ]; then
             echo "Error: Could not find compiled binary!"
             exit 1
           fi
           echo "Found binary: $BINARY_SOURCE"
-          cp "$BINARY_SOURCE" "$APP_BUNDLE/meow"
+          cp "$BINARY_SOURCE" "$APP_BUNDLE/Surv"
 
           # 2. Find and copy the compiled CoreML models
-          find "$CM_BUILD_DIR/meow.xcarchive" -name "*.mlmodelc" -type d -exec cp -r {} "$APP_BUNDLE/" \;
+          find "$CM_BUILD_DIR/Surv.xcarchive" -name "*.mlmodelc" -type d -exec cp -r {} "$APP_BUNDLE/" \;
           MODEL_COUNT=$(find "$APP_BUNDLE" -maxdepth 1 -name "*.mlmodelc" -type d | wc -l)
           echo "Copied $MODEL_COUNT compiled model(s) into the app bundle."
           if [ "$MODEL_COUNT" -lt 2 ]; then
@@ -56,7 +56,7 @@ workflows:
           
           # 5. Zip into .ipa
           cd "$IPA_DIR"
-          zip -r "meow.ipa" "Payload"
+          zip -r "Surv.ipa" "Payload"
 
     artifacts:
       - build/ios/ipa/*.ipa
